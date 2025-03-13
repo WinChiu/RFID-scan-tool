@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Add Product Prototype</title>
+    <style>
+      /* ---- 取代原本的 <style> 區塊 ---- */
+      * {
+        font-family: 'Source Sans 3';
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f2f2f2;
+      }
+
+      /* 模擬彈窗外觀，並加大圓角使其更貼近設計稿 */
+      .modal {
+        width: 360px;
+        margin: 50px auto;
+        background-color: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+      }
+
+      /* Modal Header */
+      .modal-header {
+        position: relative;
+        padding: 16px;
+        font-size: 16px;
+        font-weight: bold;
+        border-bottom: 1px solid #eee;
+        color: #333;
+        background-color: #fff;
+      }
+
+      /* 右上角關閉按鈕（若需要，可在 HTML 裡自行加上） */
+      .close-btn {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        font-size: 18px;
+      }
+
+      /* 主要內容區 */
+      .modal-content {
+        padding: 16px;
+        height: 400px;
+      }
+
+      /* 輸入框與按鈕並排 */
+      .input-group {
+        display: flex;
+        margin-bottom: 12px;
+      }
+
+      /* 輸入框 */
+      #tagInput {
+        flex: 1;
+        padding: 8px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 8px 0px 0px 8px;
+        outline: none;
+      }
+
+      /* Add 按鈕：背景改為 #00A5BD、文字白色 */
+      #addBtn {
+        min-width: 60px;
+        padding: 8px 16px;
+        font-size: 14px;
+        color: #fff;
+        background-color: #00a5bd;
+        border: none;
+        border-radius: 0px 8px 8px 0px;
+        cursor: pointer;
+      }
+
+      /* 無資料時的提示文字 */
+      #emptyState {
+        text-align: center;
+        color: #999;
+        margin: 20px 0;
+        line-height: 1.5;
+      }
+      .table-container {
+        height: 320px;
+        overflow-y: auto;
+        margin-top: 8px;
+        /* Firefox 專用: scrollbar-width + scrollbar-color */
+        scrollbar-width: thin; /* 捲軸寬度變細 */
+        scrollbar-color: #ccc #f2f2f2; /* 捲軸滑塊顏色、軌道底色 */
+      }
+
+      /* WebKit (Chrome, Safari, Edge) 自訂捲軸 */
+      .table-container::-webkit-scrollbar {
+        width: 6px; /* 捲軸寬度，可依需求調整 */
+        background-color: #f2f2f2;
+      }
+
+      .table-container::-webkit-scrollbar-thumb {
+        background-color: #ccc; /* 滑塊顏色 */
+        border-radius: 3px; /* 圓角，讓捲軸更簡約 */
+      }
+
+      .table-container::-webkit-scrollbar-thumb:hover {
+        background-color: #999; /* 滑塊 hover 時的顏色，可自行調整 */
+      }
+      /* 表格 */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+      }
+
+      /* 表頭 */
+      th {
+        text-align: left;
+        font-weight: bold;
+        color: #000;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 8px;
+        font-size: 14px;
+      }
+
+      /* 表格資料 */
+      td {
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+        vertical-align: middle;
+        font-size: 14px;
+        color: #333;
+      }
+
+      td:last-child {
+        text-align: right;
+      }
+
+      /* minus 按鈕：以圓形邊框呈現，顏色較淡 */
+      .minus-btn {
+        color: #666;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        background: none;
+        font-size: 14px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        line-height: 22px;
+        text-align: center;
+        padding: 0;
+        margin-right: 16px;
+      }
+
+      /* Modal 底部的按鈕區域 */
+      .modal-footer {
+        display: flex;
+        justify-content: space-between;
+        padding: 16px;
+        border-top: 1px solid #eee;
+        background-color: #fff;
+      }
+
+      /* Confirm 與 Clear 按鈕 */
+      .modal-footer button {
+        padding: 8px 16px;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 4px;
+        border: none;
+      }
+
+      /* Confirm 按鈕：背景改為 #00A5BD、文字白色 */
+      #confirmBtn {
+        background-color: #00a5bd;
+        color: #fff;
+        width: 100%;
+        margin-right: 16px;
+        border-radius: 8px;
+      }
+
+      /* Clear 按鈕：背景白、灰色邊框、文字較深 */
+      #clearBtn {
+        background-color: #fff;
+        color: #333;
+        border: 1px solid #ccc;
+        width: 100%;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="modal">
+      <div class="modal-header">Add Product</div>
+      <div class="modal-content">
+        <div class="input-group">
+          <input id="tagInput" type="text" placeholder="Enter tag" />
+          <button id="addBtn">Add</button>
+        </div>
+        <!-- 無資料時的提示文字 -->
+        <div id="emptyState">
+          No data<br />
+          Please enter serial No. by entering or scanning tags.
+        </div>
+
+        <!-- 有資料時會顯示的表格 -->
+        <div class="table-container">
+          <table id="tagTable" style="display: none">
+            <thead>
+              <tr>
+                <!-- 括號內的數字代表「不同的 Tag 總數」 -->
+                <th id="tagHeader">Tag (0)</th>
+                <!-- 括號內的數字代表「所有 Count 的總和」 -->
+                <th id="countHeader">Count (0)</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tagTableBody">
+              <!-- 會透過 JavaScript 動態生成 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="confirmBtn">Confirm</button>
+        <button id="clearBtn">Clear</button>
+      </div>
+    </div>
+
+    <script>
+      // 用來儲存每個 Tag 的資料，如 { tag: 'A888-8888-8888-8888', count: 2 }
+      let tagsData = [];
+
+      const tagInput = document.getElementById('tagInput');
+      const addBtn = document.getElementById('addBtn');
+      const emptyState = document.getElementById('emptyState');
+      const tagTable = document.getElementById('tagTable');
+      const tagTableBody = document.getElementById('tagTableBody');
+      const tagHeader = document.getElementById('tagHeader');
+      const countHeader = document.getElementById('countHeader');
+      const confirmBtn = document.getElementById('confirmBtn');
+      const clearBtn = document.getElementById('clearBtn');
+
+      // 點擊 Add 按鈕後，新增或更新 Tag
+      addBtn.addEventListener('click', function () {
+        const newTag = tagInput.value.trim();
+        if (newTag) {
+          // 檢查是否已存在
+          const existingTag = tagsData.find((item) => item.tag === newTag);
+          if (existingTag) {
+            // 如果已存在，count +1
+            existingTag.count += 1;
+          } else {
+            // 不存在就新增一筆
+            tagsData.push({ tag: newTag, count: 1 });
+          }
+          // 清空輸入框
+          tagInput.value = '';
+          // 重新渲染畫面
+          renderTable();
+        }
+      });
+      tagInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          addBtn.click();
+        }
+      });
+
+      // 渲染表格：動態更新 Tag 列表與計數
+      function renderTable() {
+        // 若沒有資料，就顯示 emptyState；否則顯示表格
+        if (tagsData.length === 0) {
+          emptyState.style.display = 'block';
+          tagTable.style.display = 'none';
+        } else {
+          emptyState.style.display = 'none';
+          tagTable.style.display = 'table';
+        }
+
+        // 計算所有 count 的總和
+        let totalCount = tagsData.reduce((sum, item) => sum + item.count, 0);
+
+        // 更新標頭
+        tagHeader.textContent = `Tag (${tagsData.length})`;
+        countHeader.textContent = `Count (${totalCount})`;
+
+        // 先清空 tbody
+        tagTableBody.innerHTML = '';
+
+        // 依照資料重新生成表格列
+        tagsData.forEach((item, index) => {
+          const row = document.createElement('tr');
+
+          // Tag 欄位
+          const tagCell = document.createElement('td');
+          tagCell.textContent = item.tag;
+
+          // Count 欄位
+          const countCell = document.createElement('td');
+          countCell.textContent = item.count;
+
+          // 刪除按鈕欄位
+          const actionCell = document.createElement('td');
+          const minusBtn = document.createElement('button');
+          minusBtn.classList.add('minus-btn');
+          minusBtn.innerHTML = '－'; // 或可使用符號 &minus;
+          minusBtn.addEventListener('click', () => {
+            // 直接刪除該筆資料
+            tagsData.splice(index, 1);
+            renderTable();
+          });
+          actionCell.appendChild(minusBtn);
+
+          // 將三個欄位加入列中
+          row.appendChild(tagCell);
+          row.appendChild(countCell);
+          row.appendChild(actionCell);
+
+          // 將列加入 tbody
+          tagTableBody.appendChild(row);
+        });
+      }
+
+      // Confirm 按鈕可自行定義行為，這裡示範彈出資料
+      confirmBtn.addEventListener('click', function () {
+        if (tagsData.length === 0) {
+          alert('目前沒有任何 Tag 資料。');
+        } else {
+          alert('即將送出的資料：\n' + JSON.stringify(tagsData, null, 2));
+        }
+      });
+
+      // Clear 按鈕清空所有資料
+      clearBtn.addEventListener('click', function () {
+        tagsData = [];
+        renderTable();
+      });
+    </script>
+  </body>
+</html>
