@@ -335,9 +335,9 @@
       // Confirm 按鈕可自行定義行為，這裡示範彈出資料
       confirmBtn.addEventListener('click', function () {
         if (tagsData.length === 0) {
-          alert('目前沒有任何 Tag 資料。');
+          alert('There is no data now');
         } else {
-          alert('即將送出的資料：\n' + JSON.stringify(tagsData, null, 2));
+          alert('Send' + tagsData.length + 'data');
         }
       });
 
